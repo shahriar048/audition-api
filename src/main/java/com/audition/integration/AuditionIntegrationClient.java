@@ -2,25 +2,35 @@ package com.audition.integration;
 
 import com.audition.common.exception.SystemException;
 import com.audition.model.AuditionPost;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AuditionIntegrationClient {
 
+    private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public AuditionIntegrationClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<AuditionPost> getPosts() {
-        // TODO make RestTemplate call to get Posts from https://jsonplaceholder.typicode.com/posts
-
-        return new ArrayList<>();
+        try {
+            return Optional.ofNullable(restTemplate.getForObject(POSTS_URL, AuditionPost[].class))
+                .map(Arrays::asList)
+                .orElseGet(Collections::emptyList);
+        } catch (RestClientException e) {
+            return Collections.emptyList();
+        }
     }
 
     public AuditionPost getPostById(final String id) {
