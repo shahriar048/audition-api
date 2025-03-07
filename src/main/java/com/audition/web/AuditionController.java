@@ -3,31 +3,28 @@ package com.audition.web;
 import com.audition.model.AuditionPost;
 import com.audition.service.AuditionService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuditionController {
 
-    @Autowired
-    AuditionService auditionService;
+    private final AuditionService auditionService;
 
-    // TODO Add a query param that allows data filtering. The intent of the filter is at developers discretion.
-    @RequestMapping(value = "/posts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<AuditionPost> getPosts() {
-
-        // TODO Add logic that filters response data based on the query param
-
-        return auditionService.getPosts();
+    public AuditionController(AuditionService auditionService) {
+        this.auditionService = auditionService;
     }
 
-    @RequestMapping(value = "/posts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody AuditionPost getPosts(@PathVariable("id") final String postId) {
+    @GetMapping(value = "/posts", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<AuditionPost> getPosts(@RequestParam(value = "filter", required = false) String filter) {
+        return auditionService.getPosts(filter);
+    }
+
+    @GetMapping(value = "/posts/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public AuditionPost getPostById(@PathVariable("id") final String postId) {
         final AuditionPost auditionPosts = auditionService.getPostById(postId);
 
         // TODO Add input validation
