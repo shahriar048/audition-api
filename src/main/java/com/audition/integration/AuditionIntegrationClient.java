@@ -29,18 +29,18 @@ public class AuditionIntegrationClient {
                 .map(Arrays::asList)
                 .orElseGet(Collections::emptyList);
         } catch (RestClientException e) {
-            return Collections.emptyList();
+            throw new SystemException(e.getMessage(), "Error Fetching Posts",
+                HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     public AuditionPost getPostById(final String id) {
-        // TODO get post by post ID call from https://jsonplaceholder.typicode.com/posts/
         try {
             return new AuditionPost();
         } catch (final HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new SystemException("Cannot find a Post with id " + id, "Resource Not Found",
-                    404);
+                throw new SystemException("Cannot find post with ID " + id, "Resource Not Found",
+                    HttpStatus.NOT_FOUND.value());
             } else {
                 // TODO Find a better way to handle the exception so that the original error message is not lost. Feel free to change this function.
                 throw new SystemException("Unknown Error message");

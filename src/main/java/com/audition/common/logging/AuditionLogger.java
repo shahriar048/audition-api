@@ -1,6 +1,6 @@
 package com.audition.common.logging;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
@@ -53,17 +53,24 @@ public class AuditionLogger {
 
     public void logHttpStatusCodeError(final Logger logger, final String message, final Integer errorCode) {
         if (logger.isErrorEnabled()) {
-            logger.error(createBasicErrorResponseMessage(errorCode, message) + "\n");
+            logger.error("{}\n", createBasicErrorResponseMessage(errorCode, message));
         }
     }
 
     private String createStandardProblemDetailMessage(final ProblemDetail standardProblemDetail) {
-        // TODO Add implementation here.
-        return StringUtils.EMPTY;
+        if (standardProblemDetail == null) {
+            return "ProblemDetail is null";
+        }
+
+        StringBuilder message = new StringBuilder();
+        message.append("Title: ").append(Optional.ofNullable(standardProblemDetail.getTitle()).orElse("No Title"));
+        message.append(", Status: ").append(standardProblemDetail.getStatus());
+        message.append(", Detail: ").append(Optional.ofNullable(standardProblemDetail.getDetail()).orElse("No Detail"));
+
+        return message.toString();
     }
 
     private String createBasicErrorResponseMessage(final Integer errorCode, final String message) {
-        // TODO Add implementation here.
-        return StringUtils.EMPTY;
+        return "Error Code: " + errorCode + ", Message: " + message;
     }
 }
