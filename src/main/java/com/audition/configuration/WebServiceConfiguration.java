@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.text.SimpleDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -18,8 +18,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebServiceConfiguration implements WebMvcConfigurer {
 
-    private static final String YEAR_MONTH_DAY_PATTERN = "yyyy-MM-dd";
-
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
@@ -27,7 +25,7 @@ public class WebServiceConfiguration implements WebMvcConfigurer {
             .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            .setDateFormat(new SimpleDateFormat(YEAR_MONTH_DAY_PATTERN));
+            .registerModule(new JavaTimeModule());
     }
 
     @Bean
