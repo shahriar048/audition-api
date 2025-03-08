@@ -18,8 +18,11 @@ public class AuditionService {
         List<AuditionPost> posts = auditionIntegrationClient.getPosts();
 
         if (filter != null && !filter.isEmpty()) {
+            String lowerCaseFilter = filter.toLowerCase();
+
             posts = posts.stream()
-                .filter(post -> post.getTitle().contains(filter) || post.getBody().contains(filter))
+                .filter(post -> post.getTitle().toLowerCase().contains(lowerCaseFilter) ||
+                    post.getBody().toLowerCase().contains(lowerCaseFilter))
                 .toList();
         }
 
