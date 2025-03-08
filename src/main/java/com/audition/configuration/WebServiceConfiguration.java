@@ -29,14 +29,14 @@ public class WebServiceConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public RestTemplate restTemplate(ObjectMapper objectMapper) {
+    public RestTemplate restTemplate(ObjectMapper objectMapper, LoggingInterceptor loggingInterceptor) {
         RestTemplate restTemplate = new RestTemplate(
             new BufferingClientHttpRequestFactory(createClientFactory()));
 
         restTemplate.getMessageConverters().removeIf(MappingJackson2HttpMessageConverter.class::isInstance);
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter(objectMapper));
 
-        // TODO create a logging interceptor that logs request/response for rest template calls.
+        restTemplate.getInterceptors().add(loggingInterceptor);
 
         return restTemplate;
     }

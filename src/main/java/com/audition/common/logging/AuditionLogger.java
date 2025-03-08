@@ -14,7 +14,7 @@ public class AuditionLogger {
         }
     }
 
-    public void info(final Logger logger, final String message, final Object object) {
+    public void info(final Logger logger, final String message, final Object... object) {
         if (logger.isInfoEnabled()) {
             logger.info(message, object);
         }
@@ -62,12 +62,9 @@ public class AuditionLogger {
             return "ProblemDetail is null";
         }
 
-        StringBuilder message = new StringBuilder();
-        message.append("Title: ").append(Optional.ofNullable(standardProblemDetail.getTitle()).orElse("No Title"));
-        message.append(", Status: ").append(standardProblemDetail.getStatus());
-        message.append(", Detail: ").append(Optional.ofNullable(standardProblemDetail.getDetail()).orElse("No Detail"));
-
-        return message.toString();
+        return "Title: " + Optional.ofNullable(standardProblemDetail.getTitle()).orElse("No Title")
+            + ", Status: " + standardProblemDetail.getStatus()
+            + ", Detail: " + Optional.ofNullable(standardProblemDetail.getDetail()).orElse("No Detail");
     }
 
     private String createBasicErrorResponseMessage(final Integer errorCode, final String message) {
