@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
+import com.audition.common.exception.SystemException;
 import com.audition.model.AuditionPost;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,8 +52,12 @@ class AuditionIntegrationClientTest {
         when(restTemplate.getForObject(POSTS_URL, AuditionPost[].class))
             .thenThrow(new RestClientException("Error"));
 
-        List<AuditionPost> posts = auditionIntegrationClient.getPosts();
-        assertNotNull(posts);
-        assertEquals(Collections.emptyList(), posts);
+        SystemException exception = org.junit.jupiter.api.Assertions.assertThrows(SystemException.class, () -> {
+            auditionIntegrationClient.getPosts();
+        });
+
+        assertEquals("Error", exception.getMessage());
+        assertEquals("Error Fetching Posts", exception.getTitle());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getStatusCode());
     }
 }

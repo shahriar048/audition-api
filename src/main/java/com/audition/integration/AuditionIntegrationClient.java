@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,11 +18,8 @@ public class AuditionIntegrationClient {
 
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
-    private final RestTemplate restTemplate;
-
-    public AuditionIntegrationClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    @Autowired
+    private RestTemplate restTemplate;
 
     public List<AuditionPost> getPosts() {
         try {
