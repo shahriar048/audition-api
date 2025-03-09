@@ -2,8 +2,10 @@ package com.audition.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.audition.common.exception.SystemException;
 import com.audition.integration.AuditionIntegrationClient;
 import com.audition.model.AuditionPost;
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class AuditionServiceTest {
@@ -61,4 +64,28 @@ class AuditionServiceTest {
         assertNotNull(result);
         assertEquals(0, result.size());
     }
+
+    @Test
+    void getPostById_Success() {
+        AuditionPost post = new AuditionPost();
+        when(auditionIntegrationClient.getPostById("1")).thenReturn(post);
+
+        AuditionPost result = auditionService.getPostById("1");
+        assertNotNull(result);
+        assertEquals(post, result);
+    }
+
+    @Test
+    void testGetPostById_PropagatesExceptions() {
+        SystemException expectedException = new SystemException("Exception message",
+            "Exception Title", HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        when(auditionIntegrationClient.getPostById("1")).thenThrow(expectedException);
+
+        SystemException actualException = assertThrows(SystemException.class, () -> auditionService.getPostById("1"));
+        assertEquals(expectedException.getMessage(), actualException.getMessage());
+        assertEquals(expectedException.getTitle(), actualException.getTitle());
+        assertEquals(expectedException.getStatusCode(), actualException.getStatusCode());
+    }
+
 }

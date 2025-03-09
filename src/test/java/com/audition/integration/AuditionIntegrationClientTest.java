@@ -54,10 +54,7 @@ class AuditionIntegrationClientTest {
         when(restTemplate.getForObject(POSTS_URL, AuditionPost[].class))
             .thenThrow(new RestClientException("Error"));
 
-        SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPosts();
-        });
-
+        SystemException exception = assertThrows(SystemException.class, () -> auditionIntegrationClient.getPosts());
         assertEquals("Error", exception.getMessage());
         assertEquals("Error Fetching Posts", exception.getTitle());
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
@@ -78,10 +75,8 @@ class AuditionIntegrationClientTest {
         when(restTemplate.getForObject(POSTS_URL + "/1", AuditionPost.class))
             .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
-        SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
-
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getPostById("1"));
         assertEquals("Cannot find post with ID 1", exception.getMessage());
         assertEquals("Resource Not Found", exception.getTitle());
         assertEquals(HttpStatus.NOT_FOUND.value(), exception.getStatusCode());
@@ -92,10 +87,8 @@ class AuditionIntegrationClientTest {
         when(restTemplate.getForObject(POSTS_URL + "/1", AuditionPost.class))
             .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
 
-        SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
-
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getPostById("1"));
         assertEquals("400 Bad Request", exception.getMessage());
         assertEquals("Client Error", exception.getTitle());
         assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getStatusCode());
@@ -106,10 +99,8 @@ class AuditionIntegrationClientTest {
         when(restTemplate.getForObject(POSTS_URL + "/1", AuditionPost.class))
             .thenThrow(new RestClientException("Service Unavailable"));
 
-        SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
-
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getPostById("1"));
         assertEquals("Service Unavailable", exception.getMessage());
         assertEquals("Error Fetching Post with ID 1", exception.getTitle());
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
