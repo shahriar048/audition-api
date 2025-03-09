@@ -2,6 +2,7 @@ package com.audition.integration;
 
 import com.audition.common.exception.SystemException;
 import com.audition.model.AuditionPost;
+import com.audition.model.Comment;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,8 +48,22 @@ public class AuditionIntegrationClient {
         }
     }
 
-    // TODO Write a method GET comments for a post from https://jsonplaceholder.typicode.com/posts/{postId}/comments - the comments must be returned as part of the post.
+    public List<Comment> getCommentsForPost(int postId) {
+        try {
+            return Optional.ofNullable(
+                    restTemplate.getForObject(POSTS_URL + "/" + postId + "/comments", Comment[].class, postId))
+                .map(Arrays::asList)
+                .orElseGet(Collections::emptyList);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new SystemException("Cannot find post with ID " + postId, "Resource Not Found",
+                    HttpStatus.NOT_FOUND.value());
+            }
+            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
+        } catch (RestClientException e) {
+            throw new SystemException(e.getMessage(), "Error Fetching Comments for Post ID " + postId,
+                HttpStatus.SERVICE_UNAVAILABLE.value());
+        }
+    }
 
-    // TODO write a method. GET comments for a particular Post from https://jsonplaceholder.typicode.com/comments?postId={postId}.
-    // The comments are a separate list that needs to be returned to the API consumers. Hint: this is not part of the AuditionPost pojo.
 }
