@@ -5,8 +5,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
 import com.audition.service.AuditionService;
+import com.audition.web.advice.ExceptionControllerAdvice;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +31,14 @@ class AuditionControllerTest {
     @Mock
     private AuditionService auditionService;
 
+    @Mock
+    private AuditionLogger auditionLogger;
+
     @InjectMocks
     private AuditionController auditionController;
+
+    @InjectMocks
+    private ExceptionControllerAdvice exceptionControllerAdvice;
 
     private static final List<AuditionPost> MOCK_POSTS = Arrays.asList(
         new AuditionPost(1, 101, "Title1", "Body1"),
@@ -39,7 +47,10 @@ class AuditionControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(auditionController).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(auditionController)
+            .setControllerAdvice(exceptionControllerAdvice)
+            .build();
     }
 
     private void performGetRequest(String filter, int expectedSize, String expectedTitle) throws Exception {
@@ -81,6 +92,38 @@ class AuditionControllerTest {
 
         when(auditionService.getPosts(filter)).thenReturn(expectedPosts);
         performGetRequest(filter, expectedSize, expectedTitle);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "1, 101, Title1, Body1",
+        "2, 102, Title2, Body2"
+    })
+    void getPostById_ValidId_ReturnsPost(int expectedUserId, int postId, String expectedTitle, String expectedBody)
+        throws Exception {
+        AuditionPost expectedPost = new AuditionPost(expectedUserId, postId, expectedTitle, expectedBody);
+        when(auditionService.getPostById(postId)).thenReturn(expectedPost);
+
+        mockMvc.perform(get("/posts/{id}", postId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(postId))
+            .andExpect(jsonPath("$.userId").value(expectedUserId))
+            .andExpect(jsonPath("$.title").value(expectedTitle))
+            .andExpect(jsonPath("$.body").value(expectedBody));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "0",
+        "-1"
+    })
+    void getPostById_InvalidId_ReturnsBadRequest(int postId) throws Exception {
+        mockMvc.perform(get("/posts/{id}", postId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Invalid post ID " + postId))
+            .andExpect(jsonPath("$.title").value("Bad Request"));
     }
 
 }
