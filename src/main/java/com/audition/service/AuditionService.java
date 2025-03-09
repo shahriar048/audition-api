@@ -2,6 +2,7 @@ package com.audition.service;
 
 import com.audition.integration.AuditionIntegrationClient;
 import com.audition.model.AuditionPost;
+import com.audition.model.Comment;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,13 @@ public class AuditionService {
 
     public AuditionPost getPostById(final int postId) {
         return auditionIntegrationClient.getPostById(postId);
+    }
+
+    public AuditionPost getPostWithComments(int postId) {
+        AuditionPost post = getPostById(postId);
+        List<Comment> comments = auditionIntegrationClient.getCommentsForPost(postId);
+        post.setComments(comments);
+
+        return post;
     }
 }
