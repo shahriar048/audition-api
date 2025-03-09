@@ -28,21 +28,22 @@ public class AuditionIntegrationClient {
                 .orElseGet(Collections::emptyList);
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Posts",
-                HttpStatus.INTERNAL_SERVER_ERROR.value());
+                HttpStatus.SERVICE_UNAVAILABLE.value());
         }
     }
 
     public AuditionPost getPostById(final String id) {
         try {
-            return new AuditionPost();
-        } catch (final HttpClientErrorException e) {
+            return restTemplate.getForObject(POSTS_URL + "/" + id, AuditionPost.class);
+        } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new SystemException("Cannot find post with ID " + id, "Resource Not Found",
                     HttpStatus.NOT_FOUND.value());
-            } else {
-                // TODO Find a better way to handle the exception so that the original error message is not lost. Feel free to change this function.
-                throw new SystemException("Unknown Error message");
             }
+            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
+        } catch (RestClientException e) {
+            throw new SystemException(e.getMessage(), "Error fetching post with ID " + id,
+                HttpStatus.SERVICE_UNAVAILABLE.value());
         }
     }
 
