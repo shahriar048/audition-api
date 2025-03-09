@@ -35,6 +35,16 @@ public class AuditionController {
         return auditionService.getPostById(postId);
     }
 
+    @GetMapping(value = "/posts/{id}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public AuditionPost getPostWithComments(@PathVariable("id") final int postId) {
+        if (postId < 1) {
+            throw new SystemException("Invalid post ID " + postId, "Bad Request",
+                HttpStatus.BAD_REQUEST.value());
+        }
+
+        return auditionService.getPostWithComments(postId);
+    }
+
     // TODO Add additional methods to return comments for each post. Hint: Check https://jsonplaceholder.typicode.com/
 
 }
