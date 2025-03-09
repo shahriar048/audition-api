@@ -32,7 +32,7 @@ public class AuditionIntegrationClient {
         }
     }
 
-    public AuditionPost getPostById(final String id) {
+    public AuditionPost getPostById(final int id) {
         try {
             return restTemplate.getForObject(POSTS_URL + "/" + id, AuditionPost.class);
         } catch (HttpClientErrorException e) {

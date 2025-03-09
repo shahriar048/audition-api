@@ -1,8 +1,10 @@
 package com.audition.web;
 
+import com.audition.common.exception.SystemException;
 import com.audition.model.AuditionPost;
 import com.audition.service.AuditionService;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +26,13 @@ public class AuditionController {
     }
 
     @GetMapping(value = "/posts/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public AuditionPost getPostById(@PathVariable("id") final String postId) {
-        final AuditionPost auditionPosts = auditionService.getPostById(postId);
+    public AuditionPost getPostById(@PathVariable("id") final int postId) {
+        if (postId < 1) {
+            throw new SystemException("Invalid post ID " + postId, "Bad Request",
+                HttpStatus.BAD_REQUEST.value());
+        }
 
-        // TODO Add input validation
-
-        return auditionPosts;
+        return auditionService.getPostById(postId);
     }
 
     // TODO Add additional methods to return comments for each post. Hint: Check https://jsonplaceholder.typicode.com/

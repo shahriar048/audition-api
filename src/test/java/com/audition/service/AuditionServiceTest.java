@@ -68,9 +68,9 @@ class AuditionServiceTest {
     @Test
     void getPostById_Success() {
         AuditionPost post = new AuditionPost();
-        when(auditionIntegrationClient.getPostById("1")).thenReturn(post);
+        when(auditionIntegrationClient.getPostById(1)).thenReturn(post);
 
-        AuditionPost result = auditionService.getPostById("1");
+        AuditionPost result = auditionService.getPostById(1);
         assertNotNull(result);
         assertEquals(post, result);
     }
@@ -80,9 +80,9 @@ class AuditionServiceTest {
         SystemException expectedException = new SystemException("Exception message",
             "Exception Title", HttpStatus.INTERNAL_SERVER_ERROR.value());
 
-        when(auditionIntegrationClient.getPostById("1")).thenThrow(expectedException);
+        when(auditionIntegrationClient.getPostById(1)).thenThrow(expectedException);
 
-        SystemException actualException = assertThrows(SystemException.class, () -> auditionService.getPostById("1"));
+        SystemException actualException = assertThrows(SystemException.class, () -> auditionService.getPostById(1));
         assertEquals(expectedException.getMessage(), actualException.getMessage());
         assertEquals(expectedException.getTitle(), actualException.getTitle());
         assertEquals(expectedException.getStatusCode(), actualException.getStatusCode());

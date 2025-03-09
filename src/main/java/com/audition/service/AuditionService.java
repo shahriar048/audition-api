@@ -29,7 +29,7 @@ public class AuditionService {
         return posts;
     }
 
-    public AuditionPost getPostById(final String postId) {
+    public AuditionPost getPostById(final int postId) {
         return auditionIntegrationClient.getPostById(postId);
     }
 }
