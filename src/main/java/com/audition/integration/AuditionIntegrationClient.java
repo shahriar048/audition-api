@@ -42,7 +42,7 @@ public class AuditionIntegrationClient {
             }
             throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
         } catch (RestClientException e) {
-            throw new SystemException(e.getMessage(), "Error fetching post with ID " + id,
+            throw new SystemException(e.getMessage(), "Error Fetching Post with ID " + id,
                 HttpStatus.SERVICE_UNAVAILABLE.value());
         }
     }
