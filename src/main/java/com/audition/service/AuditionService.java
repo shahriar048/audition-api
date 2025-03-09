@@ -1,8 +1,8 @@
 package com.audition.service;
 
 import com.audition.integration.AuditionIntegrationClient;
+import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
-import com.audition.model.Comment;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -36,9 +36,14 @@ public class AuditionService {
 
     public AuditionPost getPostWithComments(int postId) {
         AuditionPost post = getPostById(postId);
-        List<Comment> comments = auditionIntegrationClient.getCommentsForPost(postId);
+        List<AuditionComment> comments = auditionIntegrationClient.getCommentsForPost(postId);
         post.setComments(comments);
 
         return post;
     }
+
+    public List<AuditionComment> getComments(Integer postId) {
+        return auditionIntegrationClient.getComments(postId);
+    }
+
 }

@@ -19,14 +19,14 @@ public class AuditionPost {
     private String body;
 
     @Nullable
-    private List<Comment> comments;
+    private List<AuditionComment> comments;
 
     public AuditionPost(int userId, int id, String title, String body) {
         this.userId = userId;
         this.id = id;
         this.title = title;
         this.body = body;
-        this.comments = null; // Default to null to avoid breaking changes
+        this.comments = null;
     }
 
 }
