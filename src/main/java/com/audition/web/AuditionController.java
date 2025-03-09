@@ -1,6 +1,7 @@
 package com.audition.web;
 
 import com.audition.common.exception.SystemException;
+import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
 import com.audition.service.AuditionService;
 import java.util.List;
@@ -45,6 +46,14 @@ public class AuditionController {
         return auditionService.getPostWithComments(postId);
     }
 
-    // TODO Add additional methods to return comments for each post. Hint: Check https://jsonplaceholder.typicode.com/
+    @GetMapping(value = "/comments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<AuditionComment> getComments(@RequestParam(required = false) Integer postId) {
+        if (postId != null && postId < 1) {
+            throw new SystemException("Invalid post ID " + postId, "Bad Request",
+                HttpStatus.BAD_REQUEST.value());
+        }
+
+        return auditionService.getComments(postId);
+    }
 
 }
