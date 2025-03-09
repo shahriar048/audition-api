@@ -1,8 +1,8 @@
 package com.audition.integration;
 
 import com.audition.common.exception.SystemException;
+import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
-import com.audition.model.Comment;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 public class AuditionIntegrationClient {
 
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+    private static final String COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -48,10 +49,10 @@ public class AuditionIntegrationClient {
         }
     }
 
-    public List<Comment> getCommentsForPost(int postId) {
+    public List<AuditionComment> getCommentsForPost(int postId) {
         try {
             return Optional.ofNullable(
-                    restTemplate.getForObject(POSTS_URL + "/" + postId + "/comments", Comment[].class, postId))
+                    restTemplate.getForObject(POSTS_URL + "/" + postId + "/comments", AuditionComment[].class, postId))
                 .map(Arrays::asList)
                 .orElseGet(Collections::emptyList);
         } catch (HttpClientErrorException e) {
@@ -62,6 +63,18 @@ public class AuditionIntegrationClient {
             throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Comments for Post ID " + postId,
+                HttpStatus.SERVICE_UNAVAILABLE.value());
+        }
+    }
+
+    public List<AuditionComment> getComments(Integer postId) {
+        try {
+            String url = (postId != null) ? COMMENTS_URL + "?postId=" + postId : COMMENTS_URL;
+            return Optional.ofNullable(restTemplate.getForObject(url, AuditionComment[].class))
+                .map(Arrays::asList)
+                .orElseGet(Collections::emptyList);
+        } catch (RestClientException e) {
+            throw new SystemException(e.getMessage(), "Error Fetching Comments",
                 HttpStatus.SERVICE_UNAVAILABLE.value());
         }
     }

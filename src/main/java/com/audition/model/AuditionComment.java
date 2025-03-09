@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Comment {
+public class AuditionComment {
 
     private int id;
     private String name;
