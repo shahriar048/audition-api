@@ -5,11 +5,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
+import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
 import com.audition.service.AuditionService;
 import com.audition.web.advice.ExceptionControllerAdvice;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -124,6 +128,61 @@ class AuditionControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.detail").value("Invalid post ID " + postId))
             .andExpect(jsonPath("$.title").value("Bad Request"));
+    }
+
+    @Test
+    void getPostWithComments_ValidId_ReturnsPostWithComments() throws Exception {
+        AuditionPost post = new AuditionPost(1, 101, "Title1", "Body1");
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionService.getPostWithComments(1)).thenReturn(post);
+        post.setComments(Arrays.asList(comments));
+
+        mockMvc.perform(get("/posts/1/comments")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(101))
+            .andExpect(jsonPath("$.comments.length()").value(2))
+            .andExpect(jsonPath("$.comments[0].body").value("Comment 1"))
+            .andExpect(jsonPath("$.comments[1].body").value("Comment 2"));
+    }
+
+    @Test
+    void getPostWithComments_InvalidId_ReturnsBadRequest() throws Exception {
+        mockMvc.perform(get("/posts/0/comments")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Invalid post ID 0"))
+            .andExpect(jsonPath("$.title").value("Bad Request"));
+    }
+
+    @Test
+    void getPostWithComments_PostNotFound() throws Exception {
+        when(auditionService.getPostWithComments(1)).thenThrow(
+            new SystemException("Cannot find post with ID 1", "Resource Not Found", HttpStatus.NOT_FOUND.value()));
+
+        mockMvc.perform(get("/posts/1/comments")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.detail").value("Cannot find post with ID 1"))
+            .andExpect(jsonPath("$.title").value("Resource Not Found"));
+    }
+
+    @Test
+    void getPostWithComments_CommentsNotFound() throws Exception {
+        AuditionPost post = new AuditionPost(1, 101, "Title1", "Body1");
+
+        when(auditionService.getPostWithComments(1)).thenReturn(post);
+        post.setComments(Collections.emptyList());
+
+        mockMvc.perform(get("/posts/1/comments")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(101))
+            .andExpect(jsonPath("$.comments.length()").value(0));
     }
 
 }
