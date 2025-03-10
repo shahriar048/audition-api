@@ -185,4 +185,74 @@ class AuditionControllerTest {
             .andExpect(jsonPath("$.comments.length()").value(0));
     }
 
+    @Test
+    void getComments_ValidPostId_ReturnsComments() throws Exception {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionService.getComments(1)).thenReturn(Arrays.asList(comments));
+
+        mockMvc.perform(get("/comments")
+                .param("postId", "1")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].body").value("Comment 1"))
+            .andExpect(jsonPath("$[1].body").value("Comment 2"));
+    }
+
+    @Test
+    void getComments_NoPostId_ReturnsAllComments() throws Exception {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionService.getComments(null)).thenReturn(Arrays.asList(comments));
+
+        mockMvc.perform(get("/comments")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].body").value("Comment 1"))
+            .andExpect(jsonPath("$[1].body").value("Comment 2"));
+    }
+
+    @Test
+    void getComments_InvalidPostId_ReturnsBadRequest() throws Exception {
+        mockMvc.perform(get("/comments")
+                .param("postId", "0")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Invalid post ID 0"))
+            .andExpect(jsonPath("$.title").value("Bad Request"));
+    }
+
+    @Test
+    void getComments_PostIdNotFound() throws Exception {
+        when(auditionService.getComments(1)).thenThrow(
+            new SystemException("Cannot find comments for post with ID 1", "Resource Not Found",
+                HttpStatus.NOT_FOUND.value()));
+
+        mockMvc.perform(get("/comments")
+                .param("postId", "1")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.detail").value("Cannot find comments for post with ID 1"))
+            .andExpect(jsonPath("$.title").value("Resource Not Found"));
+    }
+
+    @Test
+    void getComments_EmptyResponse() throws Exception {
+        when(auditionService.getComments(1)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/comments")
+                .param("postId", "1")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+
 }
