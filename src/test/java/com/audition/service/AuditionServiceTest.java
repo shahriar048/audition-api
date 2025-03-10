@@ -3,10 +3,12 @@ package com.audition.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.audition.common.exception.SystemException;
 import com.audition.integration.AuditionIntegrationClient;
+import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,6 +88,63 @@ class AuditionServiceTest {
         assertEquals(expectedException.getMessage(), actualException.getMessage());
         assertEquals(expectedException.getTitle(), actualException.getTitle());
         assertEquals(expectedException.getStatusCode(), actualException.getStatusCode());
+    }
+
+    @Test
+    void getPostWithComments_Success() {
+        AuditionPost post = new AuditionPost(1, 101, "Title1", "Body1");
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionIntegrationClient.getPostById(1)).thenReturn(post);
+        when(auditionIntegrationClient.getCommentsForPost(1)).thenReturn(Arrays.asList(comments));
+
+        AuditionPost result = auditionService.getPostWithComments(1);
+        assertNotNull(result);
+        assertNotNull(result.getComments());
+        assertEquals(2, result.getComments().size());
+        assertEquals("Comment 1", result.getComments().get(0).getBody());
+    }
+
+    @Test
+    void getPostWithComments_PostNotFound() {
+        when(auditionIntegrationClient.getPostById(1)).thenThrow(
+            new SystemException("Cannot find post with ID 1", "Resource Not Found", HttpStatus.NOT_FOUND.value()));
+
+        SystemException exception = assertThrows(SystemException.class, () -> auditionService.getPostWithComments(1));
+        assertEquals("Cannot find post with ID 1", exception.getMessage());
+        assertEquals("Resource Not Found", exception.getTitle());
+        assertEquals(HttpStatus.NOT_FOUND.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getPostWithComments_CommentsNotFound() {
+        AuditionPost post = new AuditionPost(1, 101, "Title1", "Body1");
+
+        when(auditionIntegrationClient.getPostById(1)).thenReturn(post);
+        when(auditionIntegrationClient.getCommentsForPost(1)).thenThrow(
+            new SystemException("Cannot find comments for post with ID 1", "Resource Not Found",
+                HttpStatus.NOT_FOUND.value()));
+
+        SystemException exception = assertThrows(SystemException.class, () -> auditionService.getPostWithComments(1));
+        assertEquals("Cannot find comments for post with ID 1", exception.getMessage());
+        assertEquals("Resource Not Found", exception.getTitle());
+        assertEquals(HttpStatus.NOT_FOUND.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getPostWithComments_EmptyComments() {
+        AuditionPost post = new AuditionPost(1, 101, "Title1", "Body1");
+
+        when(auditionIntegrationClient.getPostById(1)).thenReturn(post);
+        when(auditionIntegrationClient.getCommentsForPost(1)).thenReturn(Collections.emptyList());
+
+        AuditionPost result = auditionService.getPostWithComments(1);
+        assertNotNull(result);
+        assertNotNull(result.getComments());
+        assertTrue(result.getComments().isEmpty());
     }
 
 }
