@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 class AuditionIntegrationClientTest {
 
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+    private static final String COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
 
     @Mock
     private RestTemplate restTemplate;
@@ -169,6 +170,83 @@ class AuditionIntegrationClientTest {
             .thenReturn(null);
 
         List<AuditionComment> result = auditionIntegrationClient.getCommentsForPost(1);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getComments_WithPostId_Success() {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2"),
+        };
+
+        when(restTemplate.getForObject(COMMENTS_URL + "?postId=1", AuditionComment[].class))
+            .thenReturn(comments);
+
+        List<AuditionComment> result = auditionIntegrationClient.getComments(1);
+        assertEquals(2, result.size());
+        assertEquals("Comment 1", result.get(0).getBody());
+        assertEquals("Comment 2", result.get(1).getBody());
+    }
+
+    @Test
+    void getComments_WithoutPostId_Success() {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2"),
+        };
+
+        when(restTemplate.getForObject(COMMENTS_URL, AuditionComment[].class))
+            .thenReturn(comments);
+
+        List<AuditionComment> result = auditionIntegrationClient.getComments(null);
+        assertEquals(2, result.size());
+        assertEquals("Comment 1", result.get(0).getBody());
+        assertEquals("Comment 2", result.get(1).getBody());
+    }
+
+    @Test
+    void getComments_WithPostId_NotFound() {
+        when(restTemplate.getForObject(COMMENTS_URL + "?postId=1", AuditionComment[].class))
+            .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getComments(1));
+
+        assertEquals("Error Fetching Comments", exception.getTitle());
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_ClientError() {
+        when(restTemplate.getForObject(COMMENTS_URL + "?postId=1", AuditionComment[].class))
+            .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
+
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getComments(1));
+
+        assertEquals("Error Fetching Comments", exception.getTitle());
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_RestClientException() {
+        when(restTemplate.getForObject(COMMENTS_URL + "?postId=1", AuditionComment[].class))
+            .thenThrow(new RestClientException("Service Unavailable"));
+
+        SystemException exception = assertThrows(SystemException.class,
+            () -> auditionIntegrationClient.getComments(1));
+
+        assertEquals("Error Fetching Comments", exception.getTitle());
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_EmptyResponse() {
+        when(restTemplate.getForObject(COMMENTS_URL + "?postId=1", AuditionComment[].class))
+            .thenReturn(null);
+
+        List<AuditionComment> result = auditionIntegrationClient.getComments(1);
         assertTrue(result.isEmpty());
     }
 
