@@ -7,7 +7,6 @@ import com.audition.service.AuditionService;
 import java.util.List;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,12 +24,12 @@ public class AuditionController {
         this.auditionService = auditionService;
     }
 
-    @GetMapping(value = "/posts", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/posts")
     public List<AuditionPost> getPosts(@RequestParam(value = "filter", required = false) final String filter) {
         return auditionService.getPosts(filter);
     }
 
-    @GetMapping(value = "/posts/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/posts/{id}")
     public AuditionPost getPostById(@PathVariable("id") final int postId) {
         if (postId < MIN_POST_ID) {
             throw new SystemException("Invalid post ID " + postId, "Bad Request",
@@ -40,7 +39,7 @@ public class AuditionController {
         return auditionService.getPostById(postId);
     }
 
-    @GetMapping(value = "/posts/{id}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/posts/{id}/comments")
     public AuditionPost getPostWithComments(@PathVariable("id") final int postId) {
         if (postId < MIN_POST_ID) {
             throw new SystemException("Invalid post ID " + postId, "Bad Request",
@@ -50,7 +49,7 @@ public class AuditionController {
         return auditionService.getPostWithComments(postId);
     }
 
-    @GetMapping(value = "/comments", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/comments")
     public List<AuditionComment> getComments(@RequestParam(required = false) final Integer postId) {
         if (postId != null && postId < MIN_POST_ID) {
             throw new SystemException("Invalid post ID " + postId, "Bad Request",

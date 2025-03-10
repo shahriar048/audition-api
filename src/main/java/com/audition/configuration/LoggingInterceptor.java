@@ -46,7 +46,7 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
     }
 
     private void logResponse(final ClientHttpResponse response) throws IOException {
-        auditionLogger.info(LOG, "Response Status Code: {}, Headers: {}, Body: {}",
+        auditionLogger.info(LOG, "Response Status Code: {}, Headers: {}",
             response.getStatusCode(), response.getHeaders());
     }
 }
