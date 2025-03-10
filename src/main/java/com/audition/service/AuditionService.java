@@ -4,26 +4,30 @@ import com.audition.integration.AuditionIntegrationClient;
 import com.audition.model.AuditionComment;
 import com.audition.model.AuditionPost;
 import java.util.List;
+import java.util.Locale;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+@Getter
 @Service
 public class AuditionService {
 
     private final AuditionIntegrationClient auditionIntegrationClient;
 
-    public AuditionService(AuditionIntegrationClient auditionIntegrationClient) {
+    public AuditionService(final AuditionIntegrationClient auditionIntegrationClient) {
         this.auditionIntegrationClient = auditionIntegrationClient;
     }
 
-    public List<AuditionPost> getPosts(String filter) {
-        List<AuditionPost> posts = auditionIntegrationClient.getPosts();
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+    public List<AuditionPost> getPosts(final String filter) {
+        final List<AuditionPost> posts = auditionIntegrationClient.getPosts();
 
         if (filter != null && !filter.isEmpty()) {
-            String lowerCaseFilter = filter.toLowerCase();
+            final String lowerCaseFilter = filter.toLowerCase(Locale.ROOT);
 
-            posts = posts.stream()
-                .filter(post -> post.getTitle().toLowerCase().contains(lowerCaseFilter) ||
-                    post.getBody().toLowerCase().contains(lowerCaseFilter))
+            return posts.stream()
+                .filter(post -> post.getTitle().toLowerCase(Locale.ROOT).contains(lowerCaseFilter) ||
+                    post.getBody().toLowerCase(Locale.ROOT).contains(lowerCaseFilter))
                 .toList();
         }
 
@@ -34,15 +38,14 @@ public class AuditionService {
         return auditionIntegrationClient.getPostById(postId);
     }
 
-    public AuditionPost getPostWithComments(int postId) {
-        AuditionPost post = getPostById(postId);
-        List<AuditionComment> comments = auditionIntegrationClient.getCommentsForPost(postId);
-        post.setComments(comments);
+    public AuditionPost getPostWithComments(final int postId) {
+        final AuditionPost post = getPostById(postId);
+        post.setComments(auditionIntegrationClient.getCommentsForPost(postId));
 
         return post;
     }
 
-    public List<AuditionComment> getComments(Integer postId) {
+    public List<AuditionComment> getComments(final Integer postId) {
         return auditionIntegrationClient.getComments(postId);
     }
 

@@ -9,8 +9,10 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
+@Getter
 @Component
 public class ResponseHeaderInjector implements Filter {
 
@@ -20,16 +22,16 @@ public class ResponseHeaderInjector implements Filter {
 
     private final CurrentTraceContext currentTraceContext;
 
-    public ResponseHeaderInjector(CurrentTraceContext currentTraceContext) {
+    public ResponseHeaderInjector(final CurrentTraceContext currentTraceContext) {
         this.currentTraceContext = currentTraceContext;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
         throws IOException, ServletException {
 
         if (response instanceof HttpServletResponse httpResponse) {
-            TraceContext traceContext = currentTraceContext.get();
+            final TraceContext traceContext = currentTraceContext.get();
 
             if (traceContext != null) {
                 httpResponse.setHeader(TRACE_ID_HEADER, traceContext.traceIdString());

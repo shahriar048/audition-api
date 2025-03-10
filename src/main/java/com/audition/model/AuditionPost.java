@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@SuppressWarnings("PMD.MethodArgumentCouldBeFinal")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +27,6 @@ public class AuditionPost {
         this.id = id;
         this.title = title;
         this.body = body;
-        this.comments = null;
     }
 
 }

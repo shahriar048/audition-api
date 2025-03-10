@@ -18,6 +18,8 @@ checkstyle {
 checkstyleMain.source = "src/main/java"
 
 pmd {
+    sourceSets = [sourceSets.main]
+
     consoleOutput = true
     toolVersion = "6.45.0"
     rulesMinimumPriority = 5

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+@Getter
 @Component
 public class AuditionIntegrationClient {
 
@@ -31,7 +33,7 @@ public class AuditionIntegrationClient {
                 .orElseGet(Collections::emptyList);
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Posts",
-                HttpStatus.SERVICE_UNAVAILABLE.value());
+                HttpStatus.SERVICE_UNAVAILABLE.value(), e);
         }
     }
 
@@ -41,16 +43,16 @@ public class AuditionIntegrationClient {
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new SystemException("Cannot find post with ID " + id, "Resource Not Found",
-                    HttpStatus.NOT_FOUND.value());
+                    HttpStatus.NOT_FOUND.value(), e);
             }
-            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
+            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value(), e);
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Post with ID " + id,
-                HttpStatus.SERVICE_UNAVAILABLE.value());
+                HttpStatus.SERVICE_UNAVAILABLE.value(), e);
         }
     }
 
-    public List<AuditionComment> getCommentsForPost(int postId) {
+    public List<AuditionComment> getCommentsForPost(final int postId) {
         try {
             return Optional.ofNullable(
                     restTemplate.getForObject(POSTS_URL + "/" + postId + "/comments", AuditionComment[].class, postId))
@@ -59,24 +61,24 @@ public class AuditionIntegrationClient {
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new SystemException("Cannot find post with ID " + postId, "Resource Not Found",
-                    HttpStatus.NOT_FOUND.value());
+                    HttpStatus.NOT_FOUND.value(), e);
             }
-            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value());
+            throw new SystemException(e.getMessage(), "Client Error", e.getStatusCode().value(), e);
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Comments for Post ID " + postId,
-                HttpStatus.SERVICE_UNAVAILABLE.value());
+                HttpStatus.SERVICE_UNAVAILABLE.value(), e);
         }
     }
 
-    public List<AuditionComment> getComments(Integer postId) {
+    public List<AuditionComment> getComments(final Integer postId) {
         try {
-            String url = (postId != null) ? COMMENTS_URL + "?postId=" + postId : COMMENTS_URL;
+            final String url = (postId != null) ? COMMENTS_URL + "?postId=" + postId : COMMENTS_URL;
             return Optional.ofNullable(restTemplate.getForObject(url, AuditionComment[].class))
                 .map(Arrays::asList)
                 .orElseGet(Collections::emptyList);
         } catch (RestClientException e) {
             throw new SystemException(e.getMessage(), "Error Fetching Comments",
-                HttpStatus.SERVICE_UNAVAILABLE.value());
+                HttpStatus.SERVICE_UNAVAILABLE.value(), e);
         }
     }
 

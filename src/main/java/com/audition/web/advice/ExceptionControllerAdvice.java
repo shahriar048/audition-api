@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import io.micrometer.common.util.StringUtils;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Getter
 @ControllerAdvice
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
@@ -26,7 +28,8 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final AuditionLogger auditionLogger;
 
-    public ExceptionControllerAdvice(AuditionLogger auditionLogger) {
+    public ExceptionControllerAdvice(final AuditionLogger auditionLogger) {
+        super();
         this.auditionLogger = auditionLogger;
     }
 
@@ -80,7 +83,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private HttpStatusCode getHttpStatusCodeFromException(final Exception exception) {
         if (exception instanceof HttpClientErrorException httpClientErrorException) {
-            return (httpClientErrorException).getStatusCode();
+            return httpClientErrorException.getStatusCode();
         } else if (exception instanceof HttpRequestMethodNotSupportedException) {
             return METHOD_NOT_ALLOWED;
         }
