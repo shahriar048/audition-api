@@ -17,8 +17,9 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class AuditionIntegrationClient {
 
-    private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
-    private static final String COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
+    private static final String BASE_URL = "https://jsonplaceholder.typicode.com";
+    private static final String POSTS_URL = BASE_URL + "/posts";
+    private static final String COMMENTS_URL = BASE_URL + "/comments";
 
     @Autowired
     private RestTemplate restTemplate;
