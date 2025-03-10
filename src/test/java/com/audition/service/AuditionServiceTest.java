@@ -147,4 +147,77 @@ class AuditionServiceTest {
         assertTrue(result.getComments().isEmpty());
     }
 
+    @Test
+    void getComments_WithPostId_Success() {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionIntegrationClient.getComments(1)).thenReturn(Arrays.asList(comments));
+
+        List<AuditionComment> result = auditionService.getComments(1);
+        assertEquals(2, result.size());
+        assertEquals("Comment 1", result.get(0).getBody());
+        assertEquals("Comment 2", result.get(1).getBody());
+    }
+
+    @Test
+    void getComments_WithoutPostId_Success() {
+        AuditionComment[] comments = {
+            new AuditionComment(1, "Name 1", "Email 1", "Comment 1"),
+            new AuditionComment(2, "Name 2", "Email 2", "Comment 2")
+        };
+
+        when(auditionIntegrationClient.getComments(null)).thenReturn(Arrays.asList(comments));
+
+        List<AuditionComment> result = auditionService.getComments(null);
+        assertEquals(2, result.size());
+        assertEquals("Comment 1", result.get(0).getBody());
+        assertEquals("Comment 2", result.get(1).getBody());
+    }
+
+    @Test
+    void getComments_WithPostId_NotFound() {
+        when(auditionIntegrationClient.getComments(1)).thenThrow(
+            new SystemException("Cannot find comments for post with ID 1", "Resource Not Found",
+                HttpStatus.NOT_FOUND.value()));
+
+        SystemException exception = assertThrows(SystemException.class, () -> auditionService.getComments(1));
+        assertEquals("Cannot find comments for post with ID 1", exception.getMessage());
+        assertEquals("Resource Not Found", exception.getTitle());
+        assertEquals(HttpStatus.NOT_FOUND.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_ClientError() {
+        when(auditionIntegrationClient.getComments(1)).thenThrow(
+            new SystemException("Client Error", "Error Fetching Comments", HttpStatus.BAD_REQUEST.value()));
+
+        SystemException exception = assertThrows(SystemException.class, () -> auditionService.getComments(1));
+        assertEquals("Client Error", exception.getMessage());
+        assertEquals("Error Fetching Comments", exception.getTitle());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_RestClientException() {
+        when(auditionIntegrationClient.getComments(1)).thenThrow(
+            new SystemException("Service Unavailable", "Error Fetching Comments",
+                HttpStatus.SERVICE_UNAVAILABLE.value()));
+
+        SystemException exception = assertThrows(SystemException.class, () -> auditionService.getComments(1));
+        assertEquals("Service Unavailable", exception.getMessage());
+        assertEquals("Error Fetching Comments", exception.getTitle());
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), exception.getStatusCode());
+    }
+
+    @Test
+    void getComments_WithPostId_EmptyResponse() {
+        when(auditionIntegrationClient.getComments(1)).thenReturn(Collections.emptyList());
+
+        List<AuditionComment> result = auditionService.getComments(1);
+        assertTrue(result.isEmpty());
+    }
+
 }
