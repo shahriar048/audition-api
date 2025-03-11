@@ -6,7 +6,7 @@ The **Audition API** is a Spring Boot-based microservice that provides endpoints
 data
 from [JSONPlaceholder](https://jsonplaceholder.typicode.com). It acts as a proxy API, fetching external data and
 exposing it
-through structured endpoints, while also providing input validation, error handling, logging, and tracing capabilities.
+through structured endpoints, while also providing input validation, filtering, error handling, logging, and tracing capabilities.
 
 ## Prerequisites
 
@@ -53,6 +53,3 @@ you can access the Swagger UI at the following URL: http://localhost:8080/swagge
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-### Contact
-
-For any inquiries or issues, please contact shahriar048@gmail.com.
