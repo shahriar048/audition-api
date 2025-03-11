@@ -1,26 +1,26 @@
 package com.audition.common.logging;
 
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.springframework.http.ProblemDetail;
 
+@ExtendWith(MockitoExtension.class)
 class AuditionLoggerTest {
 
+    @InjectMocks
     private AuditionLogger auditionLogger;
-    private Logger mockLogger;
 
-    @BeforeEach
-    void setUp() {
-        auditionLogger = new AuditionLogger();
-        mockLogger = mock(Logger.class);
-    }
+    @Mock
+    private Logger mockLogger;
 
     @Test
     void infoLogsMessageWhenInfoEnabled() {
@@ -93,8 +93,15 @@ class AuditionLoggerTest {
         problemDetail.setTitle("Bad Request");
         problemDetail.setDetail("Invalid input");
         Exception exception = new Exception("Exception message");
+
         auditionLogger.logStandardProblemDetail(mockLogger, problemDetail, exception);
         verify(mockLogger).error("Title: Bad Request, Status: 400, Detail: Invalid input", exception);
     }
 
+    @Test
+    void logHttpStatusCodeErrorLogsMessageWhenErrorEnabled() {
+        when(mockLogger.isErrorEnabled()).thenReturn(true);
+        auditionLogger.logHttpStatusCodeError(mockLogger, "Error message", 500);
+        verify(mockLogger).error("{}\n", "Error Code: 500, Message: Error message");
+    }
 }

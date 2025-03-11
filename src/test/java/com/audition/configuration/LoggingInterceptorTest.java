@@ -2,15 +2,14 @@ package com.audition.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.audition.common.logging.AuditionLogger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,12 +38,7 @@ class LoggingInterceptorTest {
     @InjectMocks
     private LoggingInterceptor loggingInterceptor;
 
-    private byte[] body;
-
-    @BeforeEach
-    void setUp() {
-        body = "request body".getBytes(StandardCharsets.UTF_8);
-    }
+    private final byte[] body = "request body".getBytes(StandardCharsets.UTF_8);
 
     @Test
     void interceptLogsRequestAndResponse() throws IOException {

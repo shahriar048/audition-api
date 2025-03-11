@@ -11,11 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class WebServiceConfigurationTest {
@@ -23,12 +28,10 @@ class WebServiceConfigurationTest {
     @InjectMocks
     private WebServiceConfiguration webServiceConfiguration;
 
-    private ObjectMapper objectMapper;
+    @Mock
+    private LoggingInterceptor loggingInterceptor;
 
-    @BeforeEach
-    void setUp() {
-        objectMapper = webServiceConfiguration.objectMapper();
-    }
+    private final ObjectMapper objectMapper = new WebServiceConfiguration().objectMapper();
 
     @Test
     void testObjectMapper_SerializesWithoutNulls() throws JsonProcessingException {
@@ -68,4 +71,24 @@ class WebServiceConfigurationTest {
         assertEquals("\"" + expectedDate + "\"", json);
     }
 
+    @Test
+    void testRestTemplate_UsesCustomObjectMapper() {
+        RestTemplate restTemplate = webServiceConfiguration.restTemplate(objectMapper, loggingInterceptor);
+
+        List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
+        boolean containsCustomMapper = messageConverters.stream()
+            .filter(MappingJackson2HttpMessageConverter.class::isInstance)
+            .map(converter -> ((MappingJackson2HttpMessageConverter) converter).getObjectMapper())
+            .anyMatch(mapper -> mapper == objectMapper);
+
+        assertTrue(containsCustomMapper, "RestTemplate should use the provided ObjectMapper.");
+    }
+
+    @Test
+    void testRestTemplate_HasLoggingInterceptor() {
+        RestTemplate restTemplate = webServiceConfiguration.restTemplate(objectMapper, loggingInterceptor);
+
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+        assertTrue(interceptors.contains(loggingInterceptor), "RestTemplate should contain LoggingInterceptor.");
+    }
 }

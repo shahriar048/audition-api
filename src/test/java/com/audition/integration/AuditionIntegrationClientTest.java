@@ -34,7 +34,7 @@ class AuditionIntegrationClientTest {
     private AuditionIntegrationClient auditionIntegrationClient;
 
     @Test
-    void testGetPosts_Success() {
+    void getPosts_Success() {
         AuditionPost[] postsArray = {new AuditionPost(), new AuditionPost()};
         when(restTemplate.getForObject(POSTS_URL, AuditionPost[].class)).thenReturn(postsArray);
 
@@ -44,7 +44,7 @@ class AuditionIntegrationClientTest {
     }
 
     @Test
-    void testGetPosts_EmptyResponse() {
+    void getPosts_EmptyResponse() {
         when(restTemplate.getForObject(POSTS_URL, AuditionPost[].class)).thenReturn(null);
 
         List<AuditionPost> posts = auditionIntegrationClient.getPosts();
@@ -53,7 +53,7 @@ class AuditionIntegrationClientTest {
     }
 
     @Test
-    void testGetPosts_RestClientException() {
+    void getPosts_RestClientException() {
         when(restTemplate.getForObject(POSTS_URL, AuditionPost[].class))
             .thenThrow(new RestClientException("Error"));
 

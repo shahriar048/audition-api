@@ -1,7 +1,6 @@
 package com.audition.configuration;
 
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,26 +12,29 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ResponseHeaderInjectorTest {
 
+    @Mock
     private CurrentTraceContext currentTraceContext;
+
+    @InjectMocks
     private ResponseHeaderInjector responseHeaderInjector;
+
+    @Mock
     private ServletRequest mockRequest;
+
+    @Mock
     private HttpServletResponse mockResponse;
+
+    @Mock
     private FilterChain mockChain;
-
-    @BeforeEach
-    void setUp() {
-        currentTraceContext = mock(CurrentTraceContext.class);
-        responseHeaderInjector = new ResponseHeaderInjector(currentTraceContext);
-
-        mockRequest = mock(ServletRequest.class);
-        mockResponse = mock(HttpServletResponse.class);
-        mockChain = mock(FilterChain.class);
-    }
 
     @Test
     void shouldInjectHeadersWhenTraceContextIsAvailable() throws IOException, ServletException {
