@@ -41,12 +41,12 @@ class AuditionServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-        "null, 2",    // No filter → return all posts
-        "'', 2",      // Empty filter → return all posts
-        "Title1, 1",  // Title match → return 1 post
-        "Body2, 1",   // Body match → return 1 post
-        "nonexistent, 0",  // No match → return empty list
-        "TITLE1, 1"   // Case-insensitive match → return 1 post
+        "null, 2",
+        "'', 2",
+        "Title1, 1",
+        "Body2, 1",
+        "nonexistent, 0",
+        "TITLE1, 1"
     })
     void testGetPosts_Filtering(String filter, int expectedSize) {
         when(auditionIntegrationClient.getPosts()).thenReturn(MOCK_POSTS);
