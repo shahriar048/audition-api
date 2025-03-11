@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuditionController {
 
+    // TODO: Split this into PostController and CommentController
+
     private static final int MIN_POST_ID = 1;
 
     private final AuditionService auditionService;

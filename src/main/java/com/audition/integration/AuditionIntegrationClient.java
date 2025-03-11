@@ -27,6 +27,7 @@ public class AuditionIntegrationClient {
     private RestTemplate restTemplate;
 
     public List<AuditionPost> getPosts() {
+        // TODO: Implement pagination (e.g. https://jsonplaceholder.typicode.com/posts?_page=1&_limit=10)
         try {
             return Optional.ofNullable(restTemplate.getForObject(POSTS_URL, AuditionPost[].class))
                 .map(Arrays::asList)

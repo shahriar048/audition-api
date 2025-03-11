@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuditionService {
 
+    // TODO: Split this into PostService and CommentService
+
     private final AuditionIntegrationClient auditionIntegrationClient;
 
     public AuditionService(final AuditionIntegrationClient auditionIntegrationClient) {
