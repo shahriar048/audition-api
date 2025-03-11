@@ -1,17 +1,17 @@
 package com.audition;
 
-import org.junit.jupiter.api.Disabled;
+import brave.propagation.CurrentTraceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-@Disabled
 @SpringBootTest
 class AuditionApplicationTests {
 
-    // TODO implement unit test. Note that an applicant should create additional unit tests as required.
+    @MockBean
+    private CurrentTraceContext currentTraceContext;
 
     @Test
     void contextLoads() {
     }
-
 }
